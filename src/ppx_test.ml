@@ -58,6 +58,9 @@ let define_type ?(loc = loc_none) ?(attributes = []) desc =
     ptyp_attributes = attributes;
   }
 
+let application e args =
+  expression (Pexp_apply (e, args))
+
 let empty_list = 
   expression (Pexp_construct (ident "[]", None))
 
@@ -112,6 +115,36 @@ let test_list_access =
     expression (Pexp_constraint (f, t)) in
   let binding =
     value_binding (pattern "registered_tests") constr
+  in structure_item (Pstr_value (Nonrecursive, [binding]))
+
+(* create exec_tests fun *)
+let exec_tests =
+  let iter =
+    fun'
+      (pattern "f")
+      (application (raw_id "f") ["",raw_id "()"])
+  in
+  let map = 
+    application
+      (raw_id "map")
+      [
+        "", iter;
+        "",
+        application
+          (raw_id "registered_tests")
+          ["", raw_id "()"]
+      ] in
+  let open_list =
+    expression
+      (Pexp_open (
+          Override,
+          ident "List",
+          map
+        )
+      )
+  in 
+  let f = fun' (pattern "()") open_list in
+  let binding = value_binding (pattern "execute_tests") f
   in structure_item (Pstr_value (Nonrecursive, [binding]))
 
 (* Create Cons for the registered tests*)
@@ -169,7 +202,7 @@ let struct_test struct_item =
 (* Substitute tests *)
 let test_init this s =
   let subl = List.map struct_test s in 
-  (test_list_record :: test_list_access :: subl)
+  (test_list_record :: test_list_access :: exec_tests ::subl)
 
 (* Map AST*)
 let test_mapper argv = 

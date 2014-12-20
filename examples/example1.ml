@@ -23,7 +23,7 @@ end
 
 (* Run all tests *)
 [@@@test_process
-  List.map (fun f -> f () ) (registered_tests ())
+  execute_tests ()
 ]
 
 
