@@ -124,15 +124,18 @@ let exec_tests =
       (pattern "f")
       (application (raw_id "f") ["",raw_id "()"])
   in
+  let reg =
+    application
+      (raw_id "registered_tests")
+      ["", raw_id "()"]
+  in 
   let map = 
     application
       (raw_id "map")
       [
         "", iter;
         "",
-        application
-          (raw_id "registered_tests")
-          ["", raw_id "()"]
+        application (raw_id "rev") ["", reg]
       ] in
   let open_list =
     expression
