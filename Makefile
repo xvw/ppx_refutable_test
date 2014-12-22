@@ -24,6 +24,7 @@ ppx : ppx_no_test.native ppx_test.native
 	$(FIND) $(OPT) $(PACK) $(<) -o $(BIN)/$(@)
 
 mini_unit :
+	$(CC) $(SRC)/$(@).mli
 	$(CC) $(SRC)/$(@).ml
 
 # example compilation
