@@ -7,6 +7,8 @@ PACK   = -package compiler-libs.common -linkpkg
 OPT    = ocamlopt
 CC     = ocamlc -I $(SRC) 
 FIND   = ocamlfind
+OUNIT  = -package oUnit -linkpkg -g
+CCUNIT = ocamlc $(PPX) -o $(BIN)/test $(OUNIT)
 
 ifeq ($(TEST), yes)
 	PPX = -ppx $(BIN)/ppx_test.native
@@ -20,14 +22,20 @@ endif
 
 ppx : ppx_no_test.native ppx_test.native
 
+mini_unit :
+	$(CC) $(SRC)/mini_unit.mli
+	$(CC) $(SRC)/mini_unit.ml
+
 %.native : $(SRC)/%.ml
 	$(FIND) $(OPT) $(PACK) $(<) -o $(BIN)/$(@)
 
 # example compilation
-example% : $(EXA)/example%.ml ppx
-	$(CC) $(PPX) $(SOURCE) $(<) -o $(BIN)/$(@)
+example% : $(EXA)/example%.ml ppx mini_unit
+	$(CC) $(PPX) $(SOURCE) mini_unit.cmo $(<) -o $(BIN)/$(@)
 
 clean : 
 	rm -rf $(BIN)/*
 
-# dparsetree
+# OUnit example :
+OUnit_example : ppx
+	$(FIND) $(CCUNIT) $(SOURCE) $(EXA)/exampleOunit.ml
