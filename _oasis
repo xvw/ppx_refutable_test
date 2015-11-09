@@ -1,0 +1,27 @@
+Name: ppx_refutable_test
+Version: 0.2
+Synopsis: A small tool to provide a refutable test environement
+Authors: Xavier Van de Woestyne <xaviervdw@gmail.com>
+License: MIT with OCaml linking exception
+
+Description: A small preprocessor for test execution
+Homepage: https://github.com/xvw/ppx_test
+
+OASISFormat: 0.4
+OCamlVersion: >= 4.02.1
+BuildTools: ocamlbuild
+Plugins: META (0.4), DevFiles (0.4)
+
+Library "mini_unit"
+  Path: lib/mini_unit/
+  Modules: Mini_unit
+
+Executable "test_mini_unit"
+  Path: lib_test/
+  MainIs: mini_unit_test.ml
+  CompiledObject: best
+  BuildDepends: mini_unit
+
+Test "test_mini_unit"
+  TestTools: test_mini_unit
+  Command: $test_mini_unit
