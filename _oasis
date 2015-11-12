@@ -22,6 +22,15 @@ Executable "test_mini_unit"
   CompiledObject: best
   BuildDepends: mini_unit
 
+PreInstallCommand:   $ocamlfind install ppx_refutable_test lib/META
+PreUninstallCommand: $ocamlfind remove ppx_refutable_test
+
+Executable ppx_refutable_test
+  Path:           lib/ppx
+  BuildDepends:   compiler-libs.common
+  MainIs:         ppx_refutable_test.ml
+  CompiledObject: best
+
 Test "test_mini_unit"
   TestTools: test_mini_unit
   Command: $test_mini_unit
