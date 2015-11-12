@@ -1,11 +1,28 @@
 (* a Simple example with refutable context *)
 
 
-(* This text is always displayed *)
-let _ = print_endline "Common text"
+module type TEST =
+sig
 
-(* This text is displayed only when the preprocessor is not used *)
-let _ = print_endline "Refuted text" [@@refute]
+  val t : int -> int -> int
+  
+end
 
-(* this text is used only when the preprocessor is used *)
-[@@@process (print_endline "Processed text")]
+module S(F : TEST) =
+struct
+
+  let t = F.t
+  let tt a b = t (t a b) 10
+
+  [@@@process
+    let _ = print_int (F.t 10 10)
+  ]
+
+end
+
+module R : TEST =
+struct
+  let t = ( + )
+end
+
+module K = S(R)
