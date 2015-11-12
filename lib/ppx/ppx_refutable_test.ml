@@ -40,7 +40,38 @@ struct
   let create_loc ?(loc = !default_loc) v =  {txt = v; loc = loc}
   let create_ident ?(loc = !default_loc) v = create_loc ~loc (Lident v)
   let true_ = Exp.construct (create_ident "true") None
-  let removed_expression = Exp.assert_ true_ 
+  let pattern s = Pat.var (create_loc s)
+  let int_const x = Exp.constant (Const_int x)
+  let exp_ident x = Exp.ident (create_ident x)
+  let create_dot modl func =
+    Ldot (Lident modl, func)
+    |> create_loc
+
+  let type_unit = Typ.constr (create_ident "unit") []
+  let type_string = Typ.constr (create_ident "string") []
+  let recorded_callback = Typ.arrow "" type_unit type_unit
+  let recorded_hash =
+    Typ.constr
+      (create_dot "Hashtbl" "t")
+      [type_string; recorded_callback]
+
+  let variable ?(recf=Nonrecursive) binding =
+    Str.value
+      recf
+      (List.map
+         (fun (name, expr, typ) ->
+            Vb.mk (pattern name) (Exp.constraint_ expr typ))
+         binding)
+      
+  let create_hashtable var_ident size typ =
+    let open Exp in 
+    let create =
+      apply 
+        (Exp.ident (create_dot "Hashtbl" "create"))
+        ["", int_const size]
+    in
+    variable [(var_ident, create, recorded_hash)]
+    
     
 end
 
@@ -97,6 +128,8 @@ let rec transform_attr s =
     ; pmb_attributes = _
     ; pmb_loc = _
     } as desc) -> reconstitute_module s desc mod_expr
+  (* [@@@register .. ] founded  *) (*@todo*)
+  | Pstr_attribute ({txt="register"; loc=loc}, payload)-> s 
   (* Normal expression *)
   | _ -> s
 
@@ -124,8 +157,14 @@ and reconstitute_module s desc mod_expr =
   
 
 and purge_and_swap s =
-  List.filter remove_refutables s 
-  |> List.map transform_attr
+  let r = 
+    List.filter remove_refutables s 
+    |> List.map transform_attr
+  in begin
+    (Helper.(create_hashtable  "ppx_ref_test_functors" 10 recorded_hash))
+    :: r
+    
+  end
 
 (* Transform process/register attributes *)
 and remap_ast _ s = purge_and_swap s 
