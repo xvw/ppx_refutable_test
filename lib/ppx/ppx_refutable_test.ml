@@ -161,7 +161,9 @@ and purge_and_swap s =
     List.filter remove_refutables s 
     |> List.map transform_attr
   in begin
-    (Helper.(create_hashtable  "ppx_ref_test_functors" 10 recorded_hash))
+    (Helper.(create_hashtable
+               "ppx_ref_test_recorded"
+               10 recorded_hash))
     :: r
     
   end

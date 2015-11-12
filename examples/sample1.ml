@@ -27,6 +27,10 @@ let _ =
   | `Ok -> print_endline "Welcome on this securised application...\nSEX"
 [@@refute]
 
+module Test = struct
+
+end
+
 
 [@@@process
    print_endline "All tests are done"
