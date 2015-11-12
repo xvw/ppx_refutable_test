@@ -1,5 +1,11 @@
-(* a Simple example with refutable context
-   Using ppx_refutable_test, "Hello World" will never be displayed
- *)
+(* a Simple example with refutable context *)
 
-let _ = (print_endline "Hello World")[@refutable]
+
+(* This text is always displayed *)
+let _ = print_endline "Common text"
+
+(* This text is displayed only when the preprocessor is not used *)
+let _ = print_endline "Refuted text" [@@refute]
+
+(* this text is used only when the preprocessor is used *)
+[@@@process (print_endline "Processed text")]
